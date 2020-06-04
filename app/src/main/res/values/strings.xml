@@ -2,4 +2,24 @@
     <string name="app_name">V2X Monitor</string>
     <string name="collector_name">数据采集器</string>
     <string name="device_num">设备</string>
+    <string-array name="data_name_array">
+        <item>定位模式</item>
+        <item>UTC时间</item>
+        <item>经度</item>
+        <item>纬度</item>
+        <item>海拔</item>
+        <item>GNSS速度</item>
+        <item>发动机转速</item>
+        <item>当前车速</item>
+        <item>发动机温度</item>
+        <item>发动机机油温度</item>
+        <item>机油压力</item>
+        <item>节气门开度</item>
+        <item>蓄电池电压</item>
+        <item>当前速度的百分比负载</item>
+        <item>冷却液压力</item>
+        <item>总里程</item>
+        <item>短里程</item>
+    </string-array>
+
 </resources>

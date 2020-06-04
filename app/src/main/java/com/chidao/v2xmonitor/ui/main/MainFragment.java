@@ -1,31 +1,27 @@
 package com.chidao.v2xmonitor.ui.main;
 
 import androidx.fragment.app.ListFragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.chidao.v2xmonitor.DetailsActivity;
 import com.chidao.v2xmonitor.R;
 
 public class MainFragment extends ListFragment {
-
-    private MainViewModel mViewModel;
+    private DataCommViewModel mViewModel;
+    private DeviceArrayAdapter mAdapter;
 
     public static MainFragment newInstance() {
         return new MainFragment();
@@ -39,29 +35,46 @@ public class MainFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        DeviceArrayAdapter<Integer> adapter = new DeviceArrayAdapter<Integer>(getActivity());
-        setListAdapter(adapter);
-
-        adapter.add(4);
-        adapter.add(2);
-        adapter.add(3);
-        adapter.add(5);
+        mAdapter = new DeviceArrayAdapter(getActivity());
+        setListAdapter(mAdapter);
     }
 
     @Override
     public void onStart () {
         super.onStart();
+
         getListView().setDivider(null);
+
+        if (mAdapter.isEmpty())
+            setListShown(false);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-        // TODO: Use the ViewModel
+        mViewModel = ViewModelProviders.of(requireActivity()).get(DataCommViewModel.class);
+
+        mViewModel.mNewDevice.observe(requireActivity(),  new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer deviceId) {
+                if (deviceId != null) {
+                    if (mAdapter.isEmpty())
+                        setListShown(true);
+                    mAdapter.add(deviceId);
+                }
+            }
+        });
     }
 
-    public class DeviceArrayAdapter<T> extends ArrayAdapter<T> {
+    @Override
+    public void onListItemClick (ListView l, View v, int position, long id) {
+        Intent intent = new Intent();
+        intent.setClass(getActivity(), DetailsActivity.class);
+        intent.putExtra("device_id",  (int)mAdapter.getItem(position));
+        startActivity(intent);
+    }
+
+    public class DeviceArrayAdapter extends ArrayAdapter<Integer> {
         private Context mCtx;
 
         public DeviceArrayAdapter(Context context) {
@@ -76,7 +89,7 @@ public class MainFragment extends ListFragment {
             Drawable background = head.getBackground();
             if (background instanceof GradientDrawable) {
                 GradientDrawable gradientDrawable = (GradientDrawable) background;
-                int color = Utils.getBackgroundColor();
+                int color = Utils.getDeviceColor(getItem(position));
                 gradientDrawable.setColor(color);
             }
             head.setText(Integer.toString((Integer)getItem(position)));
