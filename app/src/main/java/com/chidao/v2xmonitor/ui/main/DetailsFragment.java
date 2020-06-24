@@ -9,17 +9,20 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.ListFragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
+import com.chidao.v2xmonitor.DetailsActivity;
 import com.chidao.v2xmonitor.R;
 
+import java.util.ArrayList;
+
 public class DetailsFragment extends ListFragment {
+    private DataCommViewModel mViewModel;
     private DetailsFragment.DataArrayAdapter<String> mAdapter;
-    private String[] dataContent = {
-        "3D", "1970.1.1 0:0:0", "121.469170", "31.224361", "20 m", "80 km/h",
-        "3000 rpm", "80 km/h", "300 ℃", "210 ℃", "800 kpa", "100 %", "28 V",
-        "200 %", "260 kpa", "20000 km", "240 km"
-    };
+    private String[] dataNameArray;
 
     public static DetailsFragment newInstance() {
         return new DetailsFragment();
@@ -30,31 +33,63 @@ public class DetailsFragment extends ListFragment {
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mViewModel = ViewModelProviders.of(requireActivity()).get(DataCommViewModel.class);
+
+        mViewModel.mDeviceData.observe(requireActivity(), new Observer<ArrayList<DataCommViewModel.DataContent>>() {
+            @Override
+            public void onChanged(@Nullable ArrayList<DataCommViewModel.DataContent> contentList) {
+                if (contentList != null) {
+                    if (mAdapter.isEmpty())
+                        setListShown(true);
+
+                    int devId = ((DetailsActivity)requireActivity()).deviceId;
+
+                    DataCommViewModel.DataContent content = null;
+                    for (DataCommViewModel.DataContent c : contentList) {
+                        if (c.getId() == devId) {
+                            content = c;
+                            break;
+                        }
+                    }
+
+                    if (content != null) {
+                        mAdapter.clear();
+                        for (int i = 0; i < DataCommViewModel.DataContent.CONTENT_NUM; i++) {
+                            mAdapter.add(content.getContent(i));
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        dataNameArray = getResources().getStringArray(R.array.data_name_array);
+
         mAdapter = new DetailsFragment.DataArrayAdapter<String>(getActivity());
         setListAdapter(mAdapter);
-
-        for (String c : dataContent) {
-            mAdapter.add(c);
-        }
     }
 
     @Override
     public void onStart () {
         super.onStart();
         getListView().setDivider(null);
+
+        if (mAdapter.isEmpty())
+            setListShown(false);
     }
 
     public class DataArrayAdapter<T> extends ArrayAdapter<T> {
         private Context mCtx;
-        private String[] dataNameArray;
 
         public DataArrayAdapter(Context context) {
             super(context, R.layout.data_list_item, R.id.data_content);
             mCtx = context;
-            dataNameArray = getResources().getStringArray(R.array.data_name_array);
         }
 
         public View getView(int position, View convertView, ViewGroup parent) {
@@ -64,7 +99,7 @@ public class DetailsFragment extends ListFragment {
             Drawable background = dot.getBackground();
             if (background instanceof GradientDrawable) {
                 GradientDrawable gradientDrawable = (GradientDrawable) background;
-                int color = Utils.getRandomColor();
+                int color = Utils.getColorByIndex(position);
                 gradientDrawable.setColor(color);
             }
 

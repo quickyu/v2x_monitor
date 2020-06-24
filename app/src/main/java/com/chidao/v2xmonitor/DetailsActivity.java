@@ -1,6 +1,7 @@
 package com.chidao.v2xmonitor;
 
 import android.os.Bundle;
+import android.view.WindowManager;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,11 +9,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.chidao.v2xmonitor.ui.main.DetailsFragment;
 
 public class DetailsActivity extends AppCompatActivity {
-    private int deviceId = 0;
+    public int deviceId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.details_activity);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         if (savedInstanceState == null) {
             DetailsFragment details = new DetailsFragment();

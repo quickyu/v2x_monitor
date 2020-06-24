@@ -19,6 +19,8 @@ import android.widget.TextView;
 import com.chidao.v2xmonitor.DetailsActivity;
 import com.chidao.v2xmonitor.R;
 
+import java.util.ArrayList;
+
 public class MainFragment extends ListFragment {
     private DataCommViewModel mViewModel;
     private DeviceArrayAdapter mAdapter;
@@ -54,13 +56,27 @@ public class MainFragment extends ListFragment {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(requireActivity()).get(DataCommViewModel.class);
 
-        mViewModel.mNewDevice.observe(requireActivity(),  new Observer<Integer>() {
+        mViewModel.mDeviceData.observe(requireActivity(),  new Observer<ArrayList<DataCommViewModel.DataContent>>() {
             @Override
-            public void onChanged(@Nullable Integer deviceId) {
-                if (deviceId != null) {
+            public void onChanged(@Nullable  ArrayList<DataCommViewModel.DataContent> contentList) {
+                if (contentList != null) {
                     if (mAdapter.isEmpty())
                         setListShown(true);
-                    mAdapter.add(deviceId);
+
+                    for (DataCommViewModel.DataContent data : contentList) {
+                        boolean exist = false;
+                        int id = data.getId();
+
+                        for (int i = 0; i < mAdapter.getCount(); i++) {
+                            if (id == mAdapter.getItem(i)) {
+                                exist = true;
+                                break;
+                            }
+                        }
+
+                        if (!exist)
+                            mAdapter.add(id);
+                    }
                 }
             }
         });

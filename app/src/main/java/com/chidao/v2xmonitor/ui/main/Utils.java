@@ -20,32 +20,13 @@ public class Utils {
         return colors[rand.nextInt(colors.length-1)];
     }
 
+    static public int getColorByIndex(int index) {
+        return colors[index];
+    }
+
     static public int getDeviceColor(int id) {
         if (id < 1)
             id = 1;
         return deviceColor[(id-1)%5];
-    }
-
-    public class DataContent {
-        public static final int FIX_MODE = 0;
-        public static final int UTC_TIME = 1;
-        public static final int LONGITUDE = 2;
-        public static final int LATITUDE = 3;
-        public static final int ALTITUDE = 4;
-        public static final int GNSS_SPEED = 5;
-        public static final int ENGINE_ROTATING_SPEED = 6;
-        public static final int CURRENT_SPEED = 7;
-        public static final int ENGINE_TEMP = 8;
-        public static final int ENGINE_OIL_TEMP = 9;
-        public static final int OIL_PRESSURE = 10;
-        public static final int THROTTLE_POSITION = 11;
-        public static final int BATTERY_VOLTAGE = 12;
-        public static final int PERCENT_LOAD = 13;
-        public static final int COOLANT_PRESSURE = 14;
-        public static final int TOTAL_DISTANCE = 15;
-        public static final int TRIP_DISTANCE = 16;
-
-        public int ueid = 0;
-        public String[] content = new String[17];
     }
 }
